@@ -125,9 +125,9 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 		return 1;
 	}
 
-	// Changes .wav extension to .ast
+	// Changes .wav extension to .funk
 	this->filename = this->filename.substr(0, lastOf);
-	this->filename += ".ast";
+	this->filename += ".funk";
 
 	int exit = this->getWAVData(sourceWAV); // Grabs WAV header info
 	if (exit == 1) {
@@ -201,7 +201,7 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		break;
 	case 'c': // Breaks out if forcing FFmpeg / vgmstream conversion since it is handled elsewhere
 		break;
-	case 'n': // Disables looping
+	case 'n': // Enables looping
 		this->isLooped = 0xFFFF;
 		break;
 	case 'b': // Sets custom block size
@@ -422,14 +422,14 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 
 	this->astSize = wavSize + (this->numBlocks * 32) + (this->padding * this->numChannels); // Stores size of AST
 
-	// Ensures output file extension is .ast
+	// Ensures output file extension is .funk
 	string tmp = "";
-	if (this->filename.length() >= 4)
-		tmp = this->filename.substr(this->filename.length() - 4, this->filename.length());
-	if (strcmp(tmp.c_str(), ".ast") != 0)
-		this->filename += ".ast";
-	if (strcmp(this->filename.c_str(), ".ast") == 0) {
-		printf("ERROR: Output filename cannot be restricted exclusively to .ast extension!\n\n%s", help.c_str());
+	if (this->filename.length() >= 5)
+		tmp = this->filename.substr(this->filename.length() - 5, this->filename.length());
+	if (strcmp(tmp.c_str(), ".funk") != 0)
+		this->filename += ".funk";
+	if (strcmp(this->filename.c_str(), ".funk") == 0) {
+		printf("ERROR: Output filename cannot be restricted exclusively to .funk extension!\n\n%s", help.c_str());
 		return 1;
 	}
 
@@ -499,29 +499,33 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 
 // Writes AST header to output file (and swaps endianness)
 void ASTInfo::printHeader(FILE* outputAST) {
-	fwrite("STRM", 4 * sizeof(char), 1, outputAST); // Prints "STRM" at 0x00
+	fwrite("FUNK", 4 * sizeof(char), 1, outputAST); // Prints "FUNK" at 0x00
 
 	uint32_t fourByteInt = bswap_32(this->astSize); // Prints total size of all future AST block chunks (file size - 64) at 0x04
 	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
 
-	fourByteInt = 0x10000100; // Prints a hex of big endian 0x00010010 at 0x08 (contains PCM16 encoding information)
-	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
+	fwrite(&this->isLooped, sizeof(this->isLooped), 1, outputAST); // Prints 0xFFFF if looped and 0x0000 if not looped at 0x08
 
-	uint16_t twoByteShort = bswap_16(this->numChannels); // Prints number of channels at 0x0C
+	uint16_t twoByteShort = bswap_16(this->numChannels); // Prints number of channels at 0x0A
 	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
-	fwrite(&this->isLooped, sizeof(this->isLooped), 1, outputAST); // Prints 0xFFFF if looped and 0x0000 if not looped at 0x0E
+	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0C (contains normal encoding information)
+	// twoByteShort = 0x0100; // Prints a hex of big endian 0x0001 at 0x0C (contains FUNKY encoding information)
+	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
-	fourByteInt = bswap_32(this->customSampleRate); // Prints sample rate at 0x10
-	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
-
-	fourByteInt = bswap_32(this->numSamples); // Prints total number of samples at 0x14
-	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
+	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0E (Padding)
+	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
 	fourByteInt = bswap_32(this->loopStart); // Prints starting loop point (in samples) at 0x18
 	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
 
 	fourByteInt = bswap_32(this->numSamples); // Prints end loop point (in samples) at 0x1C (same as 0x14)
+	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
+
+	fourByteInt = bswap_32(this->customSampleRate); // Prints sample rate at 0x10
+	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
+
+	fourByteInt = bswap_32(this->numSamples); // Prints total number of samples at 0x14
 	fwrite(&fourByteInt, sizeof(fourByteInt), 1, outputAST);
 
 	// Prints size of first block at 0x20

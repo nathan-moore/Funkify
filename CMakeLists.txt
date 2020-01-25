@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(SOMETHINGLOL)
+project(Funkify)
 
 add_compile_options(-Wall -g)
 
@@ -14,15 +14,15 @@ src/main.cpp
 src/ASTInfo.cpp
 )
 
-add_executable(SOMETHINGLOL
+add_executable(Funkify
 ${SRC_FILES})
 
 if(UNIX)
-	target_link_libraries(SOMETHINGLOL "${PROJECT_SOURCE_DIR}/library/lib/libfftw3.a")
+	target_link_libraries(Funkify "${PROJECT_SOURCE_DIR}/library/lib/libfftw3.a")
 else()
-	target_link_libraries(SOMETHINGLOL "${PROJECT_SOURCE_DIR}/library/windows/libfftw3-3.lib")
-	add_custom_command(TARGET SOMETHINGLOL POST_BUILD
+	target_link_libraries(Funkify "${PROJECT_SOURCE_DIR}/library/windows/libfftw3-3.lib")
+	add_custom_command(TARGET Funkify POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		"${PROJECT_SOURCE_DIR}/library/windows/libfftw3-3.dll"
-		$<TARGET_FILE_DIR:SOMETHINGLOL>)
+		$<TARGET_FILE_DIR:Funkify>)
 endif()

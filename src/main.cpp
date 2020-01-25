@@ -21,7 +21,7 @@
  *	-c [vgmstream / ffmpeg]                    (force vgmstream / FFmpeg conversion)
  *	-r [sample rate]                           (default: same as source file / argument intended to change speed of audio rather than size)
  *	-b [block size]                            (default: 10080, or 0x00002760)
- *	-n                                         (disable looping)
+ *	-n                                         (enable looping)
  *	-s [loop start sample]                     (default: 0)
  *	-t [loop start in microseconds]            (default: 0)
  *	-e [loop end sample / total samples]       (default: number of samples in source file)
@@ -46,17 +46,17 @@ void defineHelp(char* arg) {
 	std::string s1 = "\nUsage: ";
 	std::string s2 = " <input file> [optional arguments]\n\nOPTIONAL ARGUMENTS\n"
 		"	-o [output file]                           (default: same as input, not including extension)\n"
-		"	-c [vgmstream / ffmpeg]                    (force vgmstream / FFmpeg conversion)\n"
+		//		"	-c [vgmstream / ffmpeg]                    (force vgmstream / FFmpeg conversion)\n"
 		//		"	-r [sample rate]                           (default: same as source file / argument intended to change speed of audio rather than size)\n"
-		"	-b [block size]                            (default: 10080, or 0x00002760)\n"
-		"	-n                                         (enables looping)\n"
+		"	-b [block size]                            (default: 16384, or 0x00004000)\n"
+		"	-n                                         (enable looping)\n"
 		"	-s [loop start sample]                     (default: 0)\n"
 		"	-t [loop start in microseconds]            (default: 0)\n"
 		"	-e [loop end sample / total samples]       (default: number of samples in source file)\n"
 		"	-f [loop end in microseconds / total time] (default: length of source audio)\n"
 		"	-h                                         (show help text)\n\n"
 		"USAGE EXAMPLES\n	";
-	std::string s3 = " inputfile.wav -o outputfile.ast -s 158462 -e 7485124\n	";
+	std::string s3 = " inputfile.wav -o outputfile.funk -s 158462 -e 7485124\n	";
 	std::string s4 = " \"use quotations if filename contains spaces.wav\" -n -f 95000000\n\n"
 		"Note: This program works with WAV files (.wav) encoded with 16-bit PCM. If the source file is anything other than a WAV file, the program will attempt to make a separate conversion using vgmstream or FFmpeg. Make sure you place the vgmstream contents or ffmpeg.exe somewhere Windows can find them.\n\n";
 

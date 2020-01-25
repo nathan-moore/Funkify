@@ -34,7 +34,7 @@ class ASTInfo {
 	unsigned int astSize; // Stores total file size of AST (minus 64)
 	unsigned int wavSize; // Stores size of audio found in source WAV
 
-	unsigned int blockSize = 0x00002760; // Stores block size used (default for AST is 10080 bytes)
+	unsigned int blockSize = 0x00004000; // Stores block size used (default for AST is 10080 bytes)
 	unsigned int excBlkSz; // Stores the size of the last block being written to the AST file
 	unsigned int numBlocks; // Stores the number of blocks being used in the AST file
 	unsigned int padding; // Stores a value between 0 and 32 to compensate with the final block to round it to a multiple of 32 bytes
@@ -56,7 +56,7 @@ public:
 	template<class T>
 	void printAudio(FILE* sourceWAV, FILE* outputAST, T transformer) // Writes all audio data to AST file (Big Endian)
 	{
-		static_assert(std::is_base_of<transformation_interface, T>::value, "T is not derived from transformatione");
+		static_assert(std::is_base_of<transformation_interface, T>::value, "T is not derived from transformation");
 
 		uint32_t length = this->blockSize; // Stores size of audio chunk in block
 		uint32_t paddedLength = bswap_32(length); // Stores current block size along with padding (Big Endian)
@@ -94,7 +94,7 @@ public:
 
 			// Adds padding to paddedLength during the last block
 			if (x == this->numBlocks - 1) {
-				memset(block.data(), 0, this->blockSize * (unsigned int)this->numChannels); // Clears old audio data stored in block array (possibly unnecessary)
+				// memset(block.data(), 0, this->blockSize * this->numChannels); // Clears old audio data stored in block array (possibly unnecessary)
 				paddedLength = (this->excBlkSz + this->padding);
 				length = (this->excBlkSz) * this->numChannels;
 				paddedLength = bswap_32(paddedLength);
