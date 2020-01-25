@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(SOMETHINGLOL)
 
-add_compile_options(-Wall -g -O3 )
+add_compile_options(-Wall -g)
 
 include_directories(include)
 include_directories(library/include)
@@ -17,4 +17,12 @@ src/ASTInfo.cpp
 add_executable(SOMETHINGLOL
 ${SRC_FILES})
 
-target_link_libraries(SOMETHINGLOL "${PROJECT_SOURCE_DIR}/library/lib/libfftw3.a")
+if(UNIX)
+	target_link_libraries(SOMETHINGLOL "${PROJECT_SOURCE_DIR}/library/lib/libfftw3.a")
+else()
+	target_link_libraries(SOMETHINGLOL "${PROJECT_SOURCE_DIR}/library/windows/libfftw3-3.lib")
+	add_custom_command(TARGET SOMETHINGLOL POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		"${PROJECT_SOURCE_DIR}/library/windows/libfftw3-3.dll"
+		$<TARGET_FILE_DIR:SOMETHINGLOL>)
+endif()

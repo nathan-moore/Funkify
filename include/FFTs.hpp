@@ -25,7 +25,7 @@ public:
 		reverse((fftw_plan)reverse)
 	{}
 
-	FFT(FFT&& move)
+	FFT(FFT&& move) : FFT()
 	{
 		std::swap(plan, move.plan);
 		std::swap(fft_in, move.fft_in);
