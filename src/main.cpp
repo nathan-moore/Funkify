@@ -49,7 +49,7 @@ void defineHelp(char* arg) {
 		//		"	-c [vgmstream / ffmpeg]                    (force vgmstream / FFmpeg conversion)\n"
 		//		"	-r [sample rate]                           (default: same as source file / argument intended to change speed of audio rather than size)\n"
 		"	-b [block size]                            (default: 16384, or 0x00004000)\n"
-		"	-n                                         (enable looping)\n"
+		"	-l                                         (enable looping)\n"
 		"	-s [loop start sample]                     (default: 0)\n"
 		"	-t [loop start in microseconds]            (default: 0)\n"
 		"	-e [loop end sample / total samples]       (default: number of samples in source file)\n"
