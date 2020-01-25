@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(SOMETHINGLOL)
+project(Funkify)
 
 add_compile_options(-Wall -g)
 
@@ -13,5 +13,5 @@ src/main.cpp
 src/ASTInfo.cpp
 )
 
-add_executable(SOMETHINGLOL
+add_executable(Funkify
 ${SRC_FILES})
