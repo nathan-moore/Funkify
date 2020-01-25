@@ -54,6 +54,8 @@ void defineHelp(char* arg) {
 		"	-t [loop start in microseconds]            (default: 0)\n"
 		"	-e [loop end sample / total samples]       (default: number of samples in source file)\n"
 		"	-f [loop end in microseconds / total time] (default: length of source audio)\n"
+		"	-x                                         (enable FFT encoding)\n"
+		"	-y                                         (enable derivative encoding)\n"
 		"	-h                                         (show help text)\n\n"
 		"USAGE EXAMPLES\n	";
 	std::string s3 = " inputfile.wav -o outputfile.funk -s 158462 -e 7485124\n	";

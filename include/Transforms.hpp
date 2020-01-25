@@ -28,6 +28,10 @@ public:
 		{
 			transforms[0]->transform_data(in, out, numChannels);
 		}
+		else
+		{
+			memcpy((void*)in.data(), (void*)out.data(), in.size() * sizeof(uint16_t));
+		}
 
 		for (int i = 1; i < transforms.size(); i++)
 		{

@@ -79,7 +79,7 @@ public:
 			{
 				double norm = fft_in[k] / in_length;
 				int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
-				out[j] = *reinterpret_cast<const uint16_t*>(&normalized_val);
+				out[in.size() - 1 - j] = *reinterpret_cast<const uint16_t*>(&normalized_val);
 				k++;
 			}
 		}

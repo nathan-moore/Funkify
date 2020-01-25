@@ -150,7 +150,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 			if (argc - 1 == count) {
-				if (argv[count][1] != 'n' && argv[count][1] != 'h')
+				if (argv[count][1] != 'n' && argv[count][1] != 'h' && argv[count][1] != 'x' && argv[count][1] != 'y')
 					exit = 1;
 				else
 					exit = assignValue(argv[count], NULL);
@@ -158,7 +158,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 			else {
 				exit = assignValue(argv[count], argv[count + 1]);
 			}
-			if (argv[count][1] != 'n' && argv[count][1] != 'h')
+			if (argv[count][1] != 'n' && argv[count][1] != 'h' && argv[count][1] != 'x' && argv[count][1] != 'y')
 				count++;
 			else if (argv[count][1] == 'h')
 				helpState = true;
@@ -296,6 +296,12 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		this->customSampleRate = atoi(c2);
 		if (this->customSampleRate == 0)
 			this->customSampleRate = this->sampleRate;
+		break;
+	case 'x': // Sets FFT conversion to true
+		this->isFFT = true;
+		break;
+	case 'y': // Sets derivative conversion to true
+		this->isDer = true;
 		break;
 	default: // Returns error if argument is invalid
 		return 1;
@@ -484,16 +490,24 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	else if (this->numChannels == 2)
 		printf(" (stereo)");
 
+	JointTransformations t;
+	FFT ft{};
+	if (this->isFFT) {
+		this->outCodec += 1;
+		t.add_transformation(&ft);
+		printf("\nFFT encoding enabled!");
+	}
+	derivative der{};
+	if (this->isDer) {
+		this->outCodec += 2;
+		t.add_transformation(&der);
+		printf("\nDerivative encoding enabled!");
+	}
+
 	printf("\n\nWriting %s...", this->filename.c_str());
 	fflush(stdout);
 
 	printHeader(outputAST); // Writes header info to output
-
-	JointTransformations t;
-	FFT ft{};
-	t.add_transformation(&ft);
-	derivative der{};
-	t.add_transformation(&der);
 	
 	printAudio(sourceWAV, outputAST, std::move(t)); // Writes audio to AST file
 

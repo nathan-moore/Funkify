@@ -33,6 +33,7 @@ class ASTInfo {
 	unsigned int loopStart = 0; // Stores starting loop point
 	unsigned int astSize; // Stores total file size of AST (minus 64)
 	unsigned int wavSize; // Stores size of audio found in source WAV
+	unsigned int outCodec = 0x0000; //  Stores funk codec information
 
 	unsigned int blockSize = 0x00004000; // Stores block size used (default for AST is 10080 bytes)
 	unsigned int excBlkSz; // Stores the size of the last block being written to the AST file
@@ -40,6 +41,9 @@ class ASTInfo {
 	unsigned int padding; // Stores a value between 0 and 32 to compensate with the final block to round it to a multiple of 32 bytes
 
 	bool attempted = false; // Helps keep vgmstream / FFmpeg output text clean
+
+	bool isFFT = false;
+	bool isDer = false;
 
 public:
 	bool getIsWAV() { return isWAV; } // Returns isWAV
