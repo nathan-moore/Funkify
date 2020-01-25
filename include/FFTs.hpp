@@ -60,11 +60,16 @@ public:
 
 			fftw_execute(plan);
 
-			size_t swap_segment = out_length / 8;
-			for (size_t j = 0; j < swap_segment / 2; j++)
+			size_t swap_segment_size = out_length / 8;
+			for (int segment = 0; segment < 8; segment++)
 			{
-				std::swap(fft_out[j], fft_out[swap_segment - j - 1]);
+				size_t swap_segment = swap_segment_size * segment;
+				for (size_t j = 0; j < swap_segment_size / 2; j++)
+				{
+					std::swap(fft_out[j + swap_segment], fft_out[swap_segment + swap_segment_size - j - 1]);
+				}
 			}
+
 
 			fftw_execute(reverse);
 
