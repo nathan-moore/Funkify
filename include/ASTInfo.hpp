@@ -83,9 +83,7 @@ public:
 
 		length *= this->numChannels; // Changes length from block size to audio size
 
-		std::vector<uint16_t> derivatives;
-		for (int i = 0; i < this->numChannels; ++i)
-			derivatives.push_back(0);
+		transformer.init_for_data(this->numChannels, block_size);
 
 		for (unsigned int x = 0; x < numBlocks; ++x) {
 
@@ -107,7 +105,7 @@ public:
 
 			fread(&block.front(), length, 1, sourceWAV); // Reads one block worth of data from source WAV file
 
-			transformer.transform_data(block, printBlock, this->numChannels, &derivatives);
+			transformer.transform_data(block, printBlock, this->numChannels);
 
 			for (unsigned int y = 0; y < this->numChannels; ++y) {
 				unsigned int z = y;
