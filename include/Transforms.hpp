@@ -23,10 +23,30 @@ public:
 
 	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
 	{
-		for (transformation_interface* t : transforms)
+		std::vector<uint16_t> scratch(in.size());
+		if (transforms.size() > 0)
 		{
-			t->transform_data(in, out, numChannels);
+			transforms[0]->transform_data(in, out, numChannels);
 		}
+
+		for (int i = 1; i < transforms.size(); i++)
+		{
+			if ((i % 2) == 1)
+			{
+				transforms[i]->transform_data(out, scratch, numChannels);
+			}
+			else
+			{
+				transforms[i]->transform_data(scratch, out, numChannels);
+			}
+		}
+
+		if ((transforms.size() % 2) == 1)
+		{
+			memcpy((void*)scratch.data(), (void*)out.data(), in.size() * sizeof(uint16_t));
+		}
+
+		return 0;
 	}
 
 };

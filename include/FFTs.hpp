@@ -60,8 +60,9 @@ public:
 
 			fftw_execute(plan);
 
-			size_t swap_segment_size = out_length / 8;
-			for (int segment = 0; segment < 8; segment++)
+			const int num_of_segments = 32;
+			size_t swap_segment_size = out_length / num_of_segments;
+			for (int segment = 0; segment < num_of_segments; segment++)
 			{
 				size_t swap_segment = swap_segment_size * segment;
 				for (size_t j = 0; j < swap_segment_size / 2; j++)
