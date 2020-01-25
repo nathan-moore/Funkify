@@ -36,3 +36,4 @@ build
 *.wav
 *.ast
 CMakeSettings.json
+*.funk

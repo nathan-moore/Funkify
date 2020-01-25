@@ -56,7 +56,6 @@ public:
 			{
 				fft_in[k] = (double)*reinterpret_cast<const int16_t*>(&in[j]);
 				k++;
-				//printf("%d", fft_in[k]);
 			}
 
 			fftw_execute(plan);
@@ -72,7 +71,8 @@ public:
 			k = 0;
 			for (size_t j = i; j < in.size(); j += numChannels)
 			{
-				int16_t normalized_val = (int16_t)(fft_in[k] / in_length);
+				double norm = fft_in[k] / in_length;
+				int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
 				out[j] = *reinterpret_cast<const uint16_t*>(&normalized_val);
 				k++;
 			}

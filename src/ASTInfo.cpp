@@ -7,8 +7,7 @@
 
 #include "swaps.h"
 #include "ASTInfo.hpp"
-#include "nothing_transform.hpp"
-#include "derivativeTrans.hpp"
+#include "Transforms.hpp"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -489,7 +488,12 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 
 	printHeader(outputAST); // Writes header info to output
 
-	FFT t{};
+	JointTransformations t;
+	FFT ft{};
+	t.add_transformation(&ft);
+	derivative der{};
+	t.add_transformation(&der);
+	
 	printAudio(sourceWAV, outputAST, std::move(t)); // Writes audio to AST file
 
 	printf("...DONE!\n");
