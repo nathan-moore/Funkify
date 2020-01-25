@@ -3,7 +3,7 @@
 
 #include "transformation.hpp"
 
-class nothing_transform : public transformation_interface
+class nothing_transform final : public transformation_interface
 {
 public:
 	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels, std::vector<uint16_t>* derivatives) override

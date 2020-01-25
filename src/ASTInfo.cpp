@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cctype>
 #include <filesystem>
+#include "FFTs.hpp"
 
 #include "swaps.h"
 #include "ASTInfo.hpp"
@@ -488,8 +489,8 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 
 	printHeader(outputAST); // Writes header info to output
 
-	derivative t{};
-	printAudio(sourceWAV, outputAST, t); // Writes audio to AST file
+	FFT t{};
+	printAudio(sourceWAV, outputAST, std::move(t)); // Writes audio to AST file
 
 	printf("...DONE!\n");
 	fclose(outputAST);
