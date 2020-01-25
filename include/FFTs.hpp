@@ -4,7 +4,7 @@
 #include "transformation.hpp"
 
 #include <assert.h>
-#include <fftw3.h>
+#include "fftw3.h"
 
 class FFT final : public transformation_interface
 {
@@ -34,7 +34,7 @@ public:
 
 	void init_for_data(unsigned short channels, size_t block_size) override
 	{
-		in_length = block_size / channels;
+		in_length = block_size / (channels * sizeof(uint16_t));
 		fft_in = fftw_alloc_real(in_length);
 
 		out_length = in_length / 2 + 1;
@@ -46,25 +46,34 @@ public:
 
 	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
 	{
-		assert(in.size() / numChannels < in_length);
+		assert(in.size() / numChannels == in_length);
+		assert(in.size() == out.size());
 
 		for (int i = 0; i < numChannels; i++)
 		{
 			int k = 0;
 			for (size_t j = i; j < in.size(); j += numChannels)
 			{
-				fft_in[k] = (double)in[j];
+				fft_in[k] = (double)*reinterpret_cast<const int16_t*>(&in[j]);
 				k++;
+				//printf("%d", fft_in[k]);
 			}
 
 			fftw_execute(plan);
+
+			size_t swap_segment = out_length / 8;
+			for (size_t j = 0; j < swap_segment / 2; j++)
+			{
+				std::swap(fft_out[j], fft_out[swap_segment - j - 1]);
+			}
 
 			fftw_execute(reverse);
 
 			k = 0;
 			for (size_t j = i; j < in.size(); j += numChannels)
 			{
-				out[j] = (uint16_t)fft_in[k] / in_length;
+				int16_t normalized_val = (int16_t)(fft_in[k] / in_length);
+				out[j] = *reinterpret_cast<const uint16_t*>(&normalized_val);
 				k++;
 			}
 		}
@@ -76,10 +85,13 @@ public:
 	{
 		if (fft_in != nullptr)
 		{
-			fftw_free(fft_in);
-			fftw_free(fft_out);
 			fftw_destroy_plan(plan);
 			fftw_destroy_plan(reverse);
+
+			fftw_free(fft_in);
+			fftw_free(fft_out);
+
+			fftw_cleanup();
 		}
 	}
 };
