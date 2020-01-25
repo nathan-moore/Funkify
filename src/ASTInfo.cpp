@@ -715,7 +715,7 @@ void ASTInfo::setPoints() {
 	// Starting loop point
 	size_t loopPt = this->extOut.find("loop start");
 	if (loopPt == string::npos) {
-		//size_t loopPt = this->extOut.find("loop_start");
+		loopPt = this->extOut.find("loop_start");
 		type = 1;
 	}
 	if (loopPt != string::npos) {
@@ -740,7 +740,7 @@ void ASTInfo::setPoints() {
 	// Ending loop point
 	loopPt = this->extOut.find("loop end");
 	if (loopPt == string::npos) {
-		//size_t loopPt = this->extOut.find("loop_end");
+		loopPt = this->extOut.find("loop_end");
 		type = 1;
 	}
 	if (loopPt != string::npos) {
@@ -767,6 +767,7 @@ void ASTInfo::setPoints() {
 			this->wavSize = this->numSamples * 2 * this->numChannels;
 		}
 	}
+	this->isLooped = 0xFFFF;
 
 	// Checks whether or not a format is looped to make drag-and-drop of non-looped video game tracks possible
 	// Most common audio formats are excluded for their sake of simple drag-and-drop (the -n flag still works)
