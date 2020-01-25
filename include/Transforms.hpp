@@ -30,7 +30,7 @@ public:
 		}
 		else
 		{
-			memcpy((void*)in.data(), (void*)out.data(), in.size() * sizeof(uint16_t));
+			memcpy((void*)out.data(), (void*)in.data(), in.size() * sizeof(uint16_t));
 		}
 
 		for (int i = 1; i < transforms.size(); i++)
@@ -47,7 +47,7 @@ public:
 
 		if ((transforms.size() % 2) == 1)
 		{
-			memcpy((void*)scratch.data(), (void*)out.data(), in.size() * sizeof(uint16_t));
+			memcpy((void*)out.data(), (void*)scratch.data(), in.size() * sizeof(uint16_t));
 		}
 
 		return 0;
