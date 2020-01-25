@@ -4,19 +4,17 @@
 class derivative : public transformation_interface
 {
 private:
-	std::vector<uint16_t> derivatives;
 
 public:
-	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
+	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels, std::vector<uint16_t> *derivatives) override
 	{
-		derivatives.resize(numChannels);
 
 		for (int i = 0; i < in.size(); i += numChannels)
 		{
 			for (int j = 0; j < numChannels; j++)
 			{
-				out[i + j] = in[i + j] - derivatives[j];
-				derivatives[j] = in[i + j];
+				out[i + j] = in[i + j] - derivatives->at(j);
+				derivatives->at(j) = in[i + j];
 			}
 		}
 		//::memcpy(out.data(), in.data(), sizeof(uint16_t) * in.size());

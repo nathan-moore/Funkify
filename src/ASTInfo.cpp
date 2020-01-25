@@ -116,7 +116,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 		}
-		sourceWAV = tmpFile;
+		//sourceWAV = tmpFile;
 	}
 
 	if (!sourceWAV) {
