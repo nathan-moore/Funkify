@@ -485,6 +485,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 		printf(" (stereo)");
 
 	printf("\n\nWriting %s...", this->filename.c_str());
+	fflush(stdout);
 
 	printHeader(outputAST); // Writes header info to output
 
