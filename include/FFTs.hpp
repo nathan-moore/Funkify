@@ -21,7 +21,8 @@ public:
 	FFT() :
 		plan((fftw_plan)nullptr),
 		fft_in(nullptr),
-		fft_out(nullptr)
+		fft_out(nullptr),
+		reverse((fftw_plan)reverse)
 	{}
 
 	FFT(FFT&& move)
@@ -39,21 +40,21 @@ public:
 		out_length = in_length / 2 + 1;
 		fft_out = fftw_alloc_complex(out_length);
 
-		plan = fftw_plan_dft_r2c_1d(in_length, fft_in, fft_out, FFTW_ESTIMATE);
-		reverse = fftw_plan_dft_c2r_1d(in_length, fft_out, fft_in, FFTW_ESTIMATE);
+		plan = fftw_plan_dft_r2c_1d(in_length, fft_in, fft_out, FFTW_MEASURE);
+		reverse = fftw_plan_dft_c2r_1d(in_length, fft_out, fft_in, FFTW_MEASURE);
 	}
 
 	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
 	{
-		assert(in.size / numChannels < in_length);
+		assert(in.size() / numChannels < in_length);
 
 		for (int i = 0; i < numChannels; i++)
 		{
 			int k = 0;
-			for (int j = i; j < in.size(); j += numChannels)
+			for (size_t j = i; j < in.size(); j += numChannels)
 			{
 				fft_in[k] = (double)in[j];
-				k++
+				k++;
 			}
 
 			fftw_execute(plan);
@@ -61,20 +62,25 @@ public:
 			fftw_execute(reverse);
 
 			k = 0;
-			for (int j = i; j < in.size(); j += numChannels)
+			for (size_t j = i; j < in.size(); j += numChannels)
 			{
 				out[j] = (uint16_t)fft_in[k] / in_length;
 				k++;
 			}
 		}
+
+		return 0;
 	}
 
 	~FFT()
 	{
-		fftw_free(fft_in);
-		fftw_free(fft_out);
-		fftw_destroy_plan(plan);
-		fftw_destroy_pan(reverse);
+		if (fft_in != nullptr)
+		{
+			fftw_free(fft_in);
+			fftw_free(fft_out);
+			fftw_destroy_plan(plan);
+			fftw_destroy_plan(reverse);
+		}
 	}
 };
 
