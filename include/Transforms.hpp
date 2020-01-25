@@ -45,7 +45,7 @@ public:
 			}
 		}
 
-		if ((transforms.size() % 2) == 1)
+		if ((transforms.size() % 2) == 0)
 		{
 			memcpy((void*)out.data(), (void*)scratch.data(), in.size() * sizeof(uint16_t));
 		}
