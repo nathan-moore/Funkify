@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(SOMETHINGLOL)
 
-add_compile_options(-Wall -Wpedantic -Os -g)
+add_compile_options(-Wall -g)
 
 include_directories(include)
 

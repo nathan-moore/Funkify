@@ -8,7 +8,7 @@ class transformation_interface
 public:
 	transformation_interface() = default;
 
-	virtual int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out) = 0;
+	virtual int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) = 0;
 
 	virtual ~transformation_interface() {}
 };

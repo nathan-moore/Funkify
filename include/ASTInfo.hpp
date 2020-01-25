@@ -56,7 +56,7 @@ public:
 	template<class T>
 	void printAudio(FILE* sourceWAV, FILE* outputAST, T transformer) // Writes all audio data to AST file (Big Endian)
 	{
-		static_assert(std::is_base_of<transformation_interface, T>::value, "T is not derived from transformation_interface");
+		static_assert(std::is_base_of<transformation_interface, T>::value, "T is not derived from transformatione");
 
 		uint32_t length = this->blockSize; // Stores size of audio chunk in block
 		uint32_t paddedLength = bswap_32(length); // Stores current block size along with padding (Big Endian)
@@ -103,7 +103,7 @@ public:
 
 			fread(&block.front(), length, 1, sourceWAV); // Reads one block worth of data from source WAV file
 
-			transformer.transform_data(block, printBlock);
+			transformer.transform_data(block, printBlock, this->numChannels);
 
 			for (unsigned int y = 0; y < this->numChannels; ++y) {
 				unsigned int z = y;

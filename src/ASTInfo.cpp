@@ -7,6 +7,7 @@
 #include "swaps.h"
 #include "ASTInfo.hpp"
 #include "nothing_transform.hpp"
+#include "derivativeTrans.hpp"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -487,7 +488,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 
 	printHeader(outputAST); // Writes header info to output
 
-	nothing_transform t{};
+	derivative t{};
 	printAudio(sourceWAV, outputAST, t); // Writes audio to AST file
 
 	printf("...DONE!\n");
@@ -542,12 +543,12 @@ void ASTInfo::printHeader(FILE* outputAST) {
 
 	return;
 }
-
+//
 //// Writes all audio data to AST file (Big Endian)
 //void ASTInfo::printAudio(FILE* sourceWAV, FILE* outputAST) {
 //
 //}
-
+//
 // Converts any format supported by vgmstream / FFmpeg to WAV
 //FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
 //	string args;
