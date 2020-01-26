@@ -4,7 +4,7 @@
 #include <transformation.hpp>
 #include <assert.h>
 #include <string.h>
-
+#include <algorithm>
 
 #include "swaps.h"
 
@@ -35,7 +35,7 @@ class ASTInfo {
 	unsigned int wavSize; // Stores size of audio found in source WAV
 	unsigned int outCodec = 0x0000; //  Stores funk codec information
 
-	unsigned int blockSize = 0x00004000; // Stores block size used (default for AST is 10080 bytes)
+	unsigned int blockSize = 8;// 0x00004000; // Stores block size used (default for AST is 10080 bytes)
 	unsigned int excBlkSz; // Stores the size of the last block being written to the AST file
 	unsigned int numBlocks; // Stores the number of blocks being used in the AST file
 	unsigned int padding; // Stores a value between 0 and 32 to compensate with the final block to round it to a multiple of 32 bytes
@@ -107,11 +107,14 @@ public:
 			fwrite(&paddedLength, sizeof(paddedLength), 1, outputAST); // Writes block size at 0x04 index of block
 			fwrite(&headerPad[0], 3 * sizeof(uint64_t), 1, outputAST); // Writes 24 bytes worth of 0s at 0x08 index of block
 
-			size_t read = fread(&block.front(), sizeof(uint16_t), length / sizeof(uint16_t), sourceWAV); // Reads one block worth of data from source WAV file
-			assert((read == (length / sizeof(uint16_t))) || (x == numBlocks - 1));
-			
-			block.resize(read);
-			printBlock.resize(read);
+			if (x == numBlocks - 1)
+			{
+				size_t pLength = (length + this->padding) / sizeof(uint16_t);
+				block.resize(pLength);
+				printBlock.resize(pLength);
+			}
+
+			fread(&block.front(), sizeof(uint16_t), length / sizeof(uint16_t), sourceWAV); // Reads one block worth of data from source WAV file
 
 			if (isInv)
 				memcpy((void*)blockOrig.data(), (void*)block.data(), block.size() * sizeof(uint16_t));
@@ -124,11 +127,12 @@ public:
 					if (isInv) {
 						int32_t norm = printBlock[z] - blockOrig[z];
 						int16_t normalized_val = (int16_t)std::clamp(norm, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
-						block[blockIndex++] = bswap_16(normalized_val);
+						block[blockIndex] = bswap_16(normalized_val);
 					}
 					else {
-						block[blockIndex++] = bswap_16(printBlock[z]);
+						block[blockIndex] = bswap_16(printBlock[z]);
 					}
+					blockIndex++;
 				}
 
 				if (x == this->numBlocks - 1) { // Adds 32-byte padding to the end of the stream
