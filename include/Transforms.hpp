@@ -56,6 +56,12 @@ public:
 
 };
 
+int16_t no_clip_subtract(int16_t a, int16_t b)
+{
+	int32_t sub = (int32_t)a - b;
+	return std::clamp(sub, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+}
+
 class derivative final : public transformation_interface
 {
 private:
@@ -75,7 +81,7 @@ public:
 		{
 			for (int j = 0; j < numChannels; j++)
 			{
-				out[i + j] = in[i + j] - derivatives[j];
+				out[i + j] = no_clip_subtract(in[i + j], derivatives[j]);
 				derivatives[j] = in[i + j];
 			}
 		}
