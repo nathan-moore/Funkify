@@ -530,8 +530,7 @@ void ASTInfo::printHeader(FILE* outputAST) {
 	uint16_t twoByteShort = bswap_16(this->numChannels); // Prints number of channels at 0x0A
 	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
-	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0C (contains normal encoding information)
-	// twoByteShort = 0x0100; // Prints a hex of big endian 0x0001 at 0x0C (contains FUNKY encoding information)
+	twoByteShort = bswap_16(this->outCodec); // Prints encoding information at 0x0C
 	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
 	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0E (Padding)
