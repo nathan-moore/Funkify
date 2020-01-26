@@ -150,7 +150,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 			if (argc - 1 == count) {
-				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
+				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y' && argv[count][1] != 'z')
 					exit = 1;
 				else
 					exit = assignValue(argv[count], NULL);
@@ -158,7 +158,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 			else {
 				exit = assignValue(argv[count], argv[count + 1]);
 			}
-			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
+			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y' && argv[count][1] != 'z')
 				count++;
 			else if (argv[count][1] == 'h')
 				helpState = true;
@@ -306,7 +306,7 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 	case 'y': // Sets derivative conversion to true
 		this->isDer = true;
 		break;
-	case 'i':
+	case 'z': // Sets integral encoding to true
 		this->isInt = true;
 		break;
 	default: // Returns error if argument is invalid
@@ -487,7 +487,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	uint64_t startTime = (uint64_t)((long double)this->loopStart / (long double)this->customSampleRate * 1000000.0 + 0.5);
 	uint64_t endTime = (uint64_t)((long double)this->numSamples / (long double)this->customSampleRate * 1000000.0 + 0.5);
 
-	printf("WAV file opened successfully!\n\n	AST file size: %d bytes\n	Sample rate: %d Hz\n	Is looped: %s\n	Block size: %d (%#010x)\n", this->astSize + 64, this->customSampleRate, loopStatus.c_str(), this->blockSize, this->blockSize);
+	printf("WAV file opened successfully!\n\n	FUNK file size: %d bytes\n	Sample rate: %d Hz\n	Is looped: %s\n	Block size: %d (%#010x)\n", this->astSize + 64, this->customSampleRate, loopStatus.c_str(), this->blockSize, this->blockSize);
 	if (this->isLooped == 0xFFFF)
 		printf("	Starting loop point: %d samples (time: %d:%02d.%06d)\n", this->loopStart, (int)(startTime / 60000000), (int)(startTime / 1000000) % 60, (int)(startTime % 1000000));
 	printf("	End of stream: %d samples (time: %d:%02d.%06d)\n	Number of channels: %d", this->numSamples, (int)(endTime / 60000000), (int)(endTime / 1000000) % 60, (int)(endTime % 1000000), this->numChannels);
@@ -509,6 +509,11 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	if (this->isDer && this->isInt)
 	{
 		t.add_transformation(new sum_tranform({ &der, &integ }));
+		if (!this->outCodec)
+			printf("\n");
+		this->outCodec += 6;
+		printf("\nDerivative encoding enabled!");
+		printf("\nIntegral encoding enabled!");
 	}
 	else if (this->isDer) {
 		t.add_transformation(&der);
@@ -520,6 +525,10 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	else if (this->isInt)
 	{
 		t.add_transformation(&integ);
+		if (!this->outCodec)
+			printf("\n");
+		this->outCodec += 4;
+		printf("\nIntegral encoding enabled!");
 	}
 
 	if (this->isInv) {
@@ -574,6 +583,7 @@ void ASTInfo::printHeader(FILE* outputAST) {
 	// Prints size of first block at 0x20
 	if (this->numBlocks == 1) {
 		fourByteInt = bswap_32(this->excBlkSz + padding);
+		this->blockSize = this->excBlkSz;
 	}
 	else {
 		fourByteInt = bswap_32(this->blockSize);

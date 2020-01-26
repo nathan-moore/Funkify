@@ -100,9 +100,30 @@ public:
 			fftw_execute(reverse);
 
 			k = 0;
-			for (size_t j = i; j < in.size(); j += numChannels)
+			size_t j = i;
+			if (in.size() > 8 * numChannels) {
+				for (; j < 8 * numChannels; j += numChannels)
+				{
+					size_t tmp = j / numChannels;
+					double mult = ((double) tmp) / 8.0;
+					double norm = fft_in[k] / in_length * mult;
+					int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
+					out[in.size() - 1 - j] = normalized_val;
+					k++;
+				}
+			}
+			for (; j < in.size() - (8 * numChannels); j += numChannels)
 			{
 				double norm = fft_in[k] / in_length;
+				int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
+				out[in.size() - 1 - j] = normalized_val;
+				k++;
+			}
+			for (; j < in.size(); j += numChannels)
+			{
+				size_t tmp = (in.size() - j - 1) / numChannels;
+				double mult = ((double) tmp) / 8.0;
+				double norm = fft_in[k] / in_length * mult;
 				int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
 				out[in.size() - 1 - j] = normalized_val;
 				k++;

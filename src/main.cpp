@@ -57,6 +57,7 @@ void defineHelp(char* arg) {
 		"	-w                                         (enable phase inversion cancelling, use with other encoding options!)\n"
 		"	-x                                         (enable FFT encoding)\n"
 		"	-y                                         (enable derivative encoding)\n"
+		"	-z                                         (enable integral encoding)\n"
 		"	-h                                         (show help text)\n\n"
 		"USAGE EXAMPLES\n	";
 	std::string s3 = " inputfile.wav -o outputfile.funk -s 158462 -e 7485124\n	";
