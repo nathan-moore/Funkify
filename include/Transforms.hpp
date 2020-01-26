@@ -31,6 +31,7 @@ public:
 		else
 		{
 			memcpy((void*)out.data(), (void*)in.data(), in.size() * sizeof(uint16_t));
+			return 0;
 		}
 
 		for (int i = 1; i < transforms.size(); i++)
@@ -45,7 +46,7 @@ public:
 			}
 		}
 
-		if ((transforms.size() % 2) == 1)
+		if ((transforms.size() % 2) == 0)
 		{
 			memcpy((void*)out.data(), (void*)scratch.data(), in.size() * sizeof(uint16_t));
 		}
