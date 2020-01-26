@@ -31,6 +31,7 @@ public:
 		else
 		{
 			memcpy((void*)out.data(), (void*)in.data(), in.size() * sizeof(uint16_t));
+			return 0;
 		}
 
 		for (int i = 1; i < transforms.size(); i++)
