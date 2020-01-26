@@ -583,6 +583,7 @@ void ASTInfo::printHeader(FILE* outputAST) {
 	// Prints size of first block at 0x20
 	if (this->numBlocks == 1) {
 		fourByteInt = bswap_32(this->excBlkSz + padding);
+		this->blockSize = this->excBlkSz;
 	}
 	else {
 		fourByteInt = bswap_32(this->blockSize);
