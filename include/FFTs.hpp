@@ -36,7 +36,7 @@ public:
 		reverse((fftw_plan)reverse)
 	{}
 
-	FFT(FFT&& move) : FFT()
+	FFT(FFT&& move) noexcept : FFT()
 	{
 		std::swap(plan, move.plan);
 		std::swap(fft_in, move.fft_in);
@@ -60,12 +60,11 @@ public:
 
 	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
-		assert(in.size() / numChannels == in_length);
 		assert(in.size() == out.size());
 
-		if ((in.size() / numChannels * sizeof(uint16_t)) != in_length)
+		if ((in.size() / (numChannels * sizeof(uint16_t))) != in_length)
 		{
-			assert(in.capacity() != in.size());
+			//assert(in.capacity() != in.size());
 			freeCurrentFields();
 			init_for_data(numChannels, in.size());
 		}
@@ -75,7 +74,7 @@ public:
 			int k = 0;
 			for (size_t j = i; j < in.size(); j += numChannels)
 			{
-				fft_in[k] = (double)*reinterpret_cast<const int16_t*>(&in[j]);
+				fft_in[k] = (double)in[j];
 				k++;
 			}
 

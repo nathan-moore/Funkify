@@ -45,6 +45,7 @@ class ASTInfo {
 	bool isFFT = false; // FFT?
 	bool isDer = false; // Derivative?
 	bool isInv = false; // Inversion of original audio?
+	bool isInt = false;
 
 public:
 	bool getIsWAV() { return isWAV; } // Returns isWAV
@@ -109,7 +110,7 @@ public:
 
 			if (x == numBlocks - 1)
 			{
-				size_t pLength = (length + this->padding * 2) / sizeof(uint16_t);
+				size_t pLength = (length + (this->padding * 2)) / sizeof(uint16_t);
 				block.resize(pLength);
 				printBlock.resize(pLength);
 			}

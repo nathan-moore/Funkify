@@ -306,6 +306,9 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 	case 'y': // Sets derivative conversion to true
 		this->isDer = true;
 		break;
+	case 'i':
+		this->isInt = true;
+		break;
 	default: // Returns error if argument is invalid
 		return 1;
 	}
@@ -501,21 +504,30 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 		printf("\n\nFFT encoding enabled!");
 	}
 	derivative der{};
-	if (this->isDer) {
+	integral integ;
+
+	if (this->isDer && this->isInt)
+	{
+		t.add_transformation(new sum_tranform({ &der, &integ }));
+	}
+	else if (this->isDer) {
 		t.add_transformation(&der);
 		if (!this->outCodec)
 			printf("\n");
 		this->outCodec += 2;
 		printf("\nDerivative encoding enabled!");
 	}
+	else if (this->isInt)
+	{
+		t.add_transformation(&integ);
+	}
+
 	if (this->isInv) {
 		if (!this->outCodec)
 			printf("\n");
 		printf("\nSource audio phase inversion enabled!");
 	}
-
-	integral integ;
-	t.add_transformation(new sum_tranform({ new derivative(), new integral() }));
+	t.add_transformation(new sum_tranform({ new derivative(), new FFT() }));
 
 	printf("\n\nWriting %s...", this->filename.c_str());
 	fflush(stdout);
