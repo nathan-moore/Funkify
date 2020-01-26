@@ -54,7 +54,7 @@ void defineHelp(char* arg) {
 		"	-t [loop start in microseconds]            (default: 0)\n"
 		"	-e [loop end sample / total samples]       (default: number of samples in source file)\n"
 		"	-f [loop end in microseconds / total time] (default: length of source audio)\n"
-		"	-v                                         (enable phase inversion cancelling, use with other encoding options!)\n"
+		"	-v                                         (enable phase inversion cancelling, use with other encoding options)\n"
 		"	-w                                         (enable triangle-linear encoding, incompatible with phase inversion)\n"
 		"	-x                                         (enable FFT encoding)\n"
 		"	-y                                         (enable derivative encoding)\n"
