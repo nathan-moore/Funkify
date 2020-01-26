@@ -16,12 +16,23 @@ private:
 	size_t out_length;
 	fftw_plan reverse;
 
+	void freeCurrentFields()
+	{
+		fftw_destroy_plan(plan);
+		fftw_destroy_plan(reverse);
+
+		fftw_free(fft_in);
+		fftw_free(fft_out);
+	}
+
 public:
 
 	FFT() :
 		plan((fftw_plan)nullptr),
 		fft_in(nullptr),
 		fft_out(nullptr),
+		in_length(0),
+		out_length(0),
 		reverse((fftw_plan)reverse)
 	{}
 
@@ -30,6 +41,9 @@ public:
 		std::swap(plan, move.plan);
 		std::swap(fft_in, move.fft_in);
 		std::swap(fft_out, move.fft_out);
+		std::swap(in_length, move.in_length);
+		std::swap(out_length, move.out_length);
+		std::swap(reverse, move.reverse);
 	}
 
 	void init_for_data(unsigned short channels, size_t block_size) override
@@ -48,6 +62,13 @@ public:
 	{
 		assert(in.size() / numChannels == in_length);
 		assert(in.size() == out.size());
+
+		if ((in.size() / numChannels * sizeof(uint16_t)) != in_length)
+		{
+			assert(in.capacity() != in.size());
+			freeCurrentFields();
+			init_for_data(numChannels, in.size());
+		}
 
 		for (int i = 0; i < numChannels; i++)
 		{
@@ -91,12 +112,7 @@ public:
 	{
 		if (fft_in != nullptr)
 		{
-			fftw_destroy_plan(plan);
-			fftw_destroy_plan(reverse);
-
-			fftw_free(fft_in);
-			fftw_free(fft_out);
-
+			freeCurrentFields();
 			fftw_cleanup();
 		}
 	}

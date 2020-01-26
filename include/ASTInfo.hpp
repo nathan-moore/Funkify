@@ -79,9 +79,7 @@ public:
 
 
 		//uint16_t* printBlock = (uint16_t*)malloc(); // Stores all finalized audio data being printed to AST file
-		size_t printBlock_size = (this->blockSize + diff) * this->numChannels;
-		assert((printBlock_size % 2) == 0);
-		std::vector<uint16_t> printBlock(printBlock_size / sizeof(uint16_t));
+		std::vector<uint16_t> printBlock(block_size / sizeof(uint16_t));
 
 		const uint64_t headerPad[] = { 0, 0, 0 }; // Used for padding in header
 
@@ -107,13 +105,17 @@ public:
 			fwrite(&paddedLength, sizeof(paddedLength), 1, outputAST); // Writes block size at 0x04 index of block
 			fwrite(&headerPad[0], 3 * sizeof(uint64_t), 1, outputAST); // Writes 24 bytes worth of 0s at 0x08 index of block
 
-			fread(&block.front(), length, 1, sourceWAV); // Reads one block worth of data from source WAV file
+			size_t read = fread(&block.front(), sizeof(uint16_t), length / sizeof(uint16_t), sourceWAV); // Reads one block worth of data from source WAV file
+			assert((read == (length / sizeof(uint16_t))) || (x == numBlocks - 1));
+			
+			block.resize(read);
+			printBlock.resize(read);
 
 			transformer.transform_data(block, printBlock, this->numChannels);
 
 			for (unsigned int y = 0; y < this->numChannels; ++y) {
 				unsigned int z = y;
-				for (; z < length / 2; z += offset) // Rearranges audio data in channel order to printBlock and swaps endianness
+				for (; z < read / 2; z += offset) // Rearranges audio data in channel order to printBlock and swaps endianness
 					block[blockIndex++] = bswap_16(printBlock[z]);
 
 				if (x == this->numBlocks - 1) { // Adds 32-byte padding to the end of the stream
