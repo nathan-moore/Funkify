@@ -150,7 +150,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 			if (argc - 1 == count) {
-				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
+				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y' && argv[count][1] != 'z')
 					exit = 1;
 				else
 					exit = assignValue(argv[count], NULL);
@@ -158,7 +158,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 			else {
 				exit = assignValue(argv[count], argv[count + 1]);
 			}
-			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
+			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y' && argv[count][1] != 'z')
 				count++;
 			else if (argv[count][1] == 'h')
 				helpState = true;
@@ -306,7 +306,7 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 	case 'y': // Sets derivative conversion to true
 		this->isDer = true;
 		break;
-	case 'i':
+	case 'z': // Sets integral encoding to true
 		this->isInt = true;
 		break;
 	default: // Returns error if argument is invalid
@@ -509,6 +509,11 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	if (this->isDer && this->isInt)
 	{
 		t.add_transformation(new sum_tranform({ &der, &integ }));
+		if (!this->outCodec)
+			printf("\n");
+		this->outCodec += 6;
+		printf("\Derivative encoding enabled!");
+		printf("\nIntegral encoding enabled!");
 	}
 	else if (this->isDer) {
 		t.add_transformation(&der);
@@ -520,6 +525,10 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	else if (this->isInt)
 	{
 		t.add_transformation(&integ);
+		if (!this->outCodec)
+			printf("\n");
+		this->outCodec += 4;
+		printf("\nIntegral encoding enabled!");
 	}
 
 	if (this->isInv) {
