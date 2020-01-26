@@ -145,7 +145,7 @@ class sum_tranform final : public transformation_interface
 {
 private:
 	std::vector<transformation_interface*> transforms;
-	std::vector<int16_t> buffer;
+	std::vector<int32_t> buffer;
 public:
 	sum_tranform(std::initializer_list<transformation_interface*> list)
 		:transforms(list)
@@ -167,15 +167,20 @@ public:
 	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
 		buffer.resize(in.size());
-		memset(out.data(), 0, out.size() * sizeof(int16_t));
+		memset(buffer.data(), 0, buffer.size() * sizeof(int32_t));
 
 		for (transformation_interface* t : transforms)
 		{
-			t->transform_data(in, buffer, numChannels);
+			t->transform_data(in, out, numChannels);
 			for (int i = 0; i < out.size(); i++)
 			{
-				out[i] = no_clip_add(out[i], buffer[i]);
+				buffer[i] += out[i];
 			}
+		}
+
+		for (int i = 0; i < buffer.size(); i++)
+		{
+			out[i] = buffer[i] / transforms.size();
 		}
 
 		return 0;
