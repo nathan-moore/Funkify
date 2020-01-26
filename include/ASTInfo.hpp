@@ -46,6 +46,7 @@ class ASTInfo {
 	bool isFFT = false; // FFT?
 	bool isDer = false; // Derivative?
 	bool isInt = false; // Integral?
+	bool isTriLin = false; // Triangle-Linear?
 
 public:
 	bool getIsWAV() { return isWAV; } // Returns isWAV
