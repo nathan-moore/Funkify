@@ -487,7 +487,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	uint64_t startTime = (uint64_t)((long double)this->loopStart / (long double)this->customSampleRate * 1000000.0 + 0.5);
 	uint64_t endTime = (uint64_t)((long double)this->numSamples / (long double)this->customSampleRate * 1000000.0 + 0.5);
 
-	printf("WAV file opened successfully!\n\n	AST file size: %d bytes\n	Sample rate: %d Hz\n	Is looped: %s\n	Block size: %d (%#010x)\n", this->astSize + 64, this->customSampleRate, loopStatus.c_str(), this->blockSize, this->blockSize);
+	printf("WAV file opened successfully!\n\n	FUNK file size: %d bytes\n	Sample rate: %d Hz\n	Is looped: %s\n	Block size: %d (%#010x)\n", this->astSize + 64, this->customSampleRate, loopStatus.c_str(), this->blockSize, this->blockSize);
 	if (this->isLooped == 0xFFFF)
 		printf("	Starting loop point: %d samples (time: %d:%02d.%06d)\n", this->loopStart, (int)(startTime / 60000000), (int)(startTime / 1000000) % 60, (int)(startTime % 1000000));
 	printf("	End of stream: %d samples (time: %d:%02d.%06d)\n	Number of channels: %d", this->numSamples, (int)(endTime / 60000000), (int)(endTime / 1000000) % 60, (int)(endTime % 1000000), this->numChannels);
@@ -512,7 +512,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 		if (!this->outCodec)
 			printf("\n");
 		this->outCodec += 6;
-		printf("\Derivative encoding enabled!");
+		printf("\nDerivative encoding enabled!");
 		printf("\nIntegral encoding enabled!");
 	}
 	else if (this->isDer) {

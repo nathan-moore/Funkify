@@ -68,6 +68,11 @@ int16_t no_clip_subtract(int16_t a, int16_t b)
 	return clamp_audio(sub);
 }
 
+int32_t clamp_audio_sum(int32_t num, int32_t multiplier)
+{
+	return (int32_t)std::clamp(num, (int32_t)INT16_MIN * multiplier, (int32_t)INT16_MAX * multiplier);
+}
+
 int16_t no_clip_add(int16_t a, int16_t b)
 {
 	int32_t sub = (int32_t)a + b;
@@ -113,7 +118,7 @@ public:
 
 class integral final : public transformation_interface
 {
-	int64_t sum;
+	int32_t sum;
 	int32_t number_of_samples;
 public:
 	integral()
@@ -123,10 +128,11 @@ public:
 
 	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
-		const int divisor = 64;
+		int32_t divisor = 64;
 		for (int i = 0; i < in.size(); i++)
 		{
 			sum += in[i];
+			sum = clamp_audio_sum(sum, divisor);
 			number_of_samples++;
 			out[i] = clamp_audio(sum / divisor);
 		}
