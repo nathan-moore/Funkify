@@ -56,10 +56,22 @@ public:
 
 };
 
+template<class T>
+int16_t clamp_audio(T num)
+{
+	return (int16_t)std::clamp(num, (T)INT16_MIN, (T)INT16_MAX);
+}
+
 int16_t no_clip_subtract(int16_t a, int16_t b)
 {
 	int32_t sub = (int32_t)a - b;
-	return std::clamp(sub, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+	return clamp_audio(sub);
+}
+
+int16_t no_clip_add(int16_t a, int16_t b)
+{
+	int32_t sub = (int32_t)a + b;
+	return clamp_audio(sub);
 }
 
 class derivative final : public transformation_interface
@@ -97,6 +109,72 @@ public:
 		::memcpy(out.data(), in.data(), sizeof(uint16_t) * in.size());
 		return 0;
 	}
+};
+
+class integral final : public transformation_interface
+{
+	int64_t sum;
+	int32_t number_of_samples;
+public:
+	integral()
+		: sum(0),
+		number_of_samples(0)
+	{}
+
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
+	{
+		const int divisor = 64;
+		for (int i = 0; i < in.size(); i++)
+		{
+			sum += in[i];
+			number_of_samples++;
+			out[i] = clamp_audio(sum / divisor);
+		}
+
+		return 0;
+	}
+};
+
+class sum_tranform final : public transformation_interface
+{
+private:
+	std::vector<transformation_interface*> transforms;
+	std::vector<int16_t> buffer;
+public:
+	sum_tranform(std::initializer_list<transformation_interface*> list)
+		:transforms(list)
+	{}
+
+	void add_transformation(transformation_interface* t)
+	{
+		transforms.push_back(t);
+	}
+
+	void init_for_data(unsigned short channels, size_t block_size) override
+	{
+		for (transformation_interface* t : transforms)
+		{
+			t->init_for_data(channels, block_size);
+		}
+	}
+
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
+	{
+		buffer.resize(in.size());
+		memset(out.data(), 0, out.size() * sizeof(int16_t));
+
+		for (transformation_interface* t : transforms)
+		{
+			t->transform_data(in, buffer, numChannels);
+			for (int i = 0; i < out.size(); i++)
+			{
+				out[i] = no_clip_add(out[i], buffer[i]);
+			}
+		}
+
+		return 0;
+	}
+
 };
 
 #endif // !JointTransformation_header_

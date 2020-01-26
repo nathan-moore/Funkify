@@ -514,6 +514,9 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 		printf("\nSource audio phase inversion enabled!");
 	}
 
+	integral integ;
+	t.add_transformation(new sum_tranform({ new derivative(), new integral() }));
+
 	printf("\n\nWriting %s...", this->filename.c_str());
 	fflush(stdout);
 
