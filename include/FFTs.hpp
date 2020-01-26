@@ -58,7 +58,7 @@ public:
 		reverse = fftw_plan_dft_c2r_1d(in_length, fft_out, fft_in, FFTW_MEASURE);
 	}
 
-	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
 		assert(in.size() / numChannels == in_length);
 		assert(in.size() == out.size());
@@ -100,7 +100,7 @@ public:
 			{
 				double norm = fft_in[k] / in_length;
 				int16_t normalized_val = (int16_t)std::clamp(norm, (double)INT16_MIN, (double)INT16_MAX);
-				out[in.size() - 1 - j] = *reinterpret_cast<const uint16_t*>(&normalized_val);
+				out[in.size() - 1 - j] = normalized_val;
 				k++;
 			}
 		}

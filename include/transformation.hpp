@@ -13,7 +13,7 @@ public:
 		return;
 	}
 
-	virtual int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) = 0;
+	virtual int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) = 0;
 
 	virtual ~transformation_interface() {}
 };

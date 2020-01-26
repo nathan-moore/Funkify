@@ -150,7 +150,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 			if (argc - 1 == count) {
-				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'x' && argv[count][1] != 'y')
+				if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
 					exit = 1;
 				else
 					exit = assignValue(argv[count], NULL);
@@ -158,7 +158,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 			else {
 				exit = assignValue(argv[count], argv[count + 1]);
 			}
-			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'x' && argv[count][1] != 'y')
+			if (argv[count][1] != 'l' && argv[count][1] != 'h' && argv[count][1] != 'w' && argv[count][1] != 'x' && argv[count][1] != 'y')
 				count++;
 			else if (argv[count][1] == 'h')
 				helpState = true;
@@ -296,6 +296,9 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		this->customSampleRate = atoi(c2);
 		if (this->customSampleRate == 0)
 			this->customSampleRate = this->sampleRate;
+		break;
+	case 'w': // Sets phase inversion conversion to true
+		this->isInv = true;
 		break;
 	case 'x': // Sets FFT conversion to true
 		this->isFFT = true;
@@ -499,11 +502,16 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	}
 	derivative der{};
 	if (this->isDer) {
-		this->outCodec += 2;
 		t.add_transformation(&der);
 		if (!this->outCodec)
 			printf("\n");
+		this->outCodec += 2;
 		printf("\nDerivative encoding enabled!");
+	}
+	if (this->isInv) {
+		if (!this->outCodec)
+			printf("\n");
+		printf("\nSource audio phase inversion enabled!");
 	}
 
 	printf("\n\nWriting %s...", this->filename.c_str());
@@ -530,8 +538,7 @@ void ASTInfo::printHeader(FILE* outputAST) {
 	uint16_t twoByteShort = bswap_16(this->numChannels); // Prints number of channels at 0x0A
 	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
-	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0C (contains normal encoding information)
-	// twoByteShort = 0x0100; // Prints a hex of big endian 0x0001 at 0x0C (contains FUNKY encoding information)
+	twoByteShort = bswap_16(this->outCodec); // Prints encoding information at 0x0C
 	fwrite(&twoByteShort, sizeof(twoByteShort), 1, outputAST);
 
 	twoByteShort = 0x0000; // Prints a hex of big endian 0x0000 at 0x0E (Padding)

@@ -42,8 +42,9 @@ class ASTInfo {
 
 	bool attempted = false; // Helps keep vgmstream / FFmpeg output text clean
 
-	bool isFFT = false;
-	bool isDer = false;
+	bool isFFT = false; // FFT?
+	bool isDer = false; // Derivative?
+	bool isInv = false; // Inversion of original audio?
 
 public:
 	bool getIsWAV() { return isWAV; } // Returns isWAV
@@ -73,15 +74,16 @@ public:
 
 		size_t block_size = (this->blockSize + diff) * this->numChannels;
 		assert((block_size % 2) == 0);
-		std::vector<uint16_t> block(block_size / sizeof(uint16_t));// Used to read and store audio data from the original file
+		std::vector<int16_t> block(block_size / sizeof(uint16_t)); // Used to read and store audio data from the original file
+		std::vector<int16_t> blockOrig(block_size / sizeof(uint16_t)); // Backup of block
 
 		//uint16_t* block = (uint16_t*)malloc(); 
 
 
 		//uint16_t* printBlock = (uint16_t*)malloc(); // Stores all finalized audio data being printed to AST file
-		std::vector<uint16_t> printBlock(block_size / sizeof(uint16_t));
+		std::vector<int16_t> printBlock(block_size / sizeof(uint16_t));
 
-		const uint64_t headerPad[] = { 0, 0, 0 }; // Used for padding in header
+		const int64_t headerPad[] = { 0, 0, 0 }; // Used for padding in header
 
 		length *= this->numChannels; // Changes length from block size to audio size
 
@@ -111,12 +113,23 @@ public:
 			block.resize(read);
 			printBlock.resize(read);
 
+			if (isInv)
+				memcpy((void*)blockOrig.data(), (void*)block.data(), block.size() * sizeof(uint16_t));
+
 			transformer.transform_data(block, printBlock, this->numChannels);
 
 			for (unsigned int y = 0; y < this->numChannels; ++y) {
 				unsigned int z = y;
-				for (; z < read / 2; z += offset) // Rearranges audio data in channel order to printBlock and swaps endianness
-					block[blockIndex++] = bswap_16(printBlock[z]);
+				for (; z < length / 2; z += offset) { // Rearranges audio data in channel order to printBlock and swaps endianness
+					if (isInv) {
+						int32_t norm = printBlock[z] - blockOrig[z];
+						int16_t normalized_val = (int16_t)std::clamp(norm, (int32_t)INT16_MIN, (int32_t)INT16_MAX);
+						block[blockIndex++] = bswap_16(normalized_val);
+					}
+					else {
+						block[blockIndex++] = bswap_16(printBlock[z]);
+					}
+				}
 
 				if (x == this->numBlocks - 1) { // Adds 32-byte padding to the end of the stream
 					for (z = 0; z < padding; z += 2)
