@@ -23,6 +23,11 @@ private:
 
 		fftw_free(fft_in);
 		fftw_free(fft_out);
+
+		plan = nullptr;
+		reverse = nullptr;
+		fft_in = nullptr;
+		fft_out = nullptr;
 	}
 
 public:
@@ -62,11 +67,11 @@ public:
 	{
 		assert(in.size() == out.size());
 
-		if ((in.size() / (numChannels * sizeof(uint16_t))) != in_length)
+		if ((in.size() / numChannels) != in_length)
 		{
 			//assert(in.capacity() != in.size());
 			freeCurrentFields();
-			init_for_data(numChannels, in.size());
+			init_for_data(numChannels, in.size() * sizeof(uint16_t));
 		}
 
 		for (int i = 0; i < numChannels; i++)
