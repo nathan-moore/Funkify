@@ -21,9 +21,9 @@ public:
 		}
 	}
 
-	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
-		std::vector<uint16_t> scratch(in.size());
+		std::vector<int16_t> scratch(in.size());
 		if (transforms.size() > 0)
 		{
 			transforms[0]->transform_data(in, out, numChannels);
@@ -68,7 +68,7 @@ public:
 			derivatives.push_back(0);
 	}
 
-	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
 
 		for (size_t i = 0; i < in.size(); i += numChannels)
@@ -86,7 +86,7 @@ public:
 class nothing_transform final : public transformation_interface
 {
 public:
-	int transform_data(const std::vector<uint16_t>& in, std::vector<uint16_t>& out, unsigned short numChannels) override
+	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
 		::memcpy(out.data(), in.data(), sizeof(uint16_t) * in.size());
 		return 0;
