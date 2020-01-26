@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Funkify)
 
-add_compile_options(-Wall -g)
+add_compile_options(-Wall -g -O3 -march=native)
 
 include_directories(include)
 include_directories(library/include)
