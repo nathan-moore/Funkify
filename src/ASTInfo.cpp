@@ -249,8 +249,7 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		break;
 	case 's': // Sets starting loop point
 		this->loopStart = atoi(c2);
-		if (!this->isWAV)
-			this->isLooped = 0xFFFF;
+		this->isLooped = 0xFFFF;
 		break;
 	case 't': // Sets starting loop point (in microseconds)
 		time = atol(c2);
@@ -258,8 +257,7 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		rounded = rounded * (long double)this->sampleRate + 0.5;
 		time = (uint64_t)rounded;
 		this->loopStart = (unsigned int)rounded;
-		if (!this->isWAV)
-			this->isLooped = 0xFFFF;
+		this->isLooped = 0xFFFF;
 		break;
 	case 'e': // Sets end point of AST file
 		samples = atoi(c2);
@@ -490,7 +488,7 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 	uint64_t startTime = (uint64_t)((long double)this->loopStart / (long double)this->customSampleRate * 1000000.0 + 0.5);
 	uint64_t endTime = (uint64_t)((long double)this->numSamples / (long double)this->customSampleRate * 1000000.0 + 0.5);
 
-	printf("WAV file opened successfully!\n\n	FUNK file size: %d bytes\n	Sample rate: %d Hz\n	Is looped: %s\n	Block size: %d (%#010x)\n", this->astSize + 64, this->customSampleRate, loopStatus.c_str(), this->blockSize, this->blockSize);
+	printf("WAV file opened successfully!\n\n	FUNK file size: %d bytes\n	Sample rate: %d Hz\n	Block size: %d (%#010x)\n	Is looped: %s\n", this->astSize + 64, this->customSampleRate, this->blockSize, this->blockSize, loopStatus.c_str());
 	if (this->isLooped == 0xFFFF)
 		printf("	Starting loop point: %d samples (time: %d:%02d.%06d)\n", this->loopStart, (int)(startTime / 60000000), (int)(startTime / 1000000) % 60, (int)(startTime % 1000000));
 	printf("	End of stream: %d samples (time: %d:%02d.%06d)\n	Number of channels: %d", this->numSamples, (int)(endTime / 60000000), (int)(endTime / 1000000) % 60, (int)(endTime % 1000000), this->numChannels);

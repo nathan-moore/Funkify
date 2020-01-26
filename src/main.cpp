@@ -45,6 +45,7 @@ void defineHelp(char* arg) {
 
 	std::string s1 = "\nUsage: ";
 	std::string s2 = " <input file> [optional arguments]\n\nOPTIONAL ARGUMENTS\n"
+		"	-h                                         (show help text)\n"
 		"	-o [output file]                           (default: same as input, not including extension)\n"
 		//		"	-c [vgmstream / ffmpeg]                    (force vgmstream / FFmpeg conversion)\n"
 		//		"	-r [sample rate]                           (default: same as source file / argument intended to change speed of audio rather than size)\n"
@@ -54,16 +55,14 @@ void defineHelp(char* arg) {
 		"	-t [loop start in microseconds]            (default: 0)\n"
 		"	-e [loop end sample / total samples]       (default: number of samples in source file)\n"
 		"	-f [loop end in microseconds / total time] (default: length of source audio)\n"
-		"	-v                                         (enable phase inversion cancelling, use with other encoding options)\n"
+		"	-v                                         (enable phase inversion canceling, use with other encoding options)\n"
 		"	-w                                         (enable triangle-linear encoding, incompatible with phase inversion)\n"
 		"	-x                                         (enable FFT encoding)\n"
 		"	-y                                         (enable derivative encoding)\n"
-		"	-z                                         (enable integral encoding)\n"
-		"	-h                                         (show help text)\n\n"
+		"	-z                                         (enable integral encoding)\n\n"
 		"USAGE EXAMPLES\n	";
 	std::string s3 = " inputfile.wav -o outputfile.funk -s 158462 -e 7485124\n	";
-	std::string s4 = " \"use quotations if filename contains spaces.wav\" -n -f 95000000\n\n"
-		"Note: This program works with WAV files (.wav) encoded with 16-bit PCM. If the source file is anything other than a WAV file, the program will attempt to make a separate conversion using vgmstream or FFmpeg. Make sure you place the vgmstream contents or ffmpeg.exe somewhere Windows can find them.\n\n";
+	std::string s4 = " \"use quotations if filename contains spaces.wav\" -n -f 95000000\n";
 
 	help = s1 + str + s2 + str + s3 + str + s4;
 }
