@@ -652,12 +652,12 @@ FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
 
 	// Piping needed to obtain vgmstream / FFmpeg output
 	dup2(1, 3);
-	int pin = _dup(0);
+	int pin = dup(0);
 	int pout;
 	if (cnvType == 0)
-		pout = _dup(1);
+		pout = dup(1);
 	else
-		pout = _dup(2);
+		pout = dup(2);
 	int outPipe[2];
 	_pipe(outPipe, 16777216, O_TEXT);
 	if (cnvType == 0)
@@ -717,7 +717,7 @@ FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
 		char* str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with vgmstream's test.exe:\n";
 		if (cnvType == 1)
 			str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with ffmpeg.exe:\n";
-		_write(3, str1, strlen(str1));
+		write(3, str1, strlen(str1));
 	}
 	this->attempted = true;
 	char* str2 = "Converting to WAV...";
@@ -739,7 +739,7 @@ FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
 
 	char* str3 = "...FAILED!\n";
 	if (*ret != 0) {
-		_write(3, str3, strlen(str3));
+		write(3, str3, strlen(str3));
 		return NULL;
 	}
 
@@ -764,7 +764,7 @@ FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
 	char tmpResult[4096];
 	int sz;
 	do {
-		sz = _read(outPipe[0], &tmpResult, 4096);
+		sz = read(outPipe[0], &tmpResult, 4096);
 		if (sz != 4096)
 			tmpResult[sz] = '\0';
 		this->extOut += tmpResult;
