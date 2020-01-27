@@ -836,7 +836,8 @@ void ASTInfo::setPoints() {
 			this->wavSize = this->numSamples * 2 * this->numChannels;
 		}
 	}
-	this->isLooped = 0x0000;
+	if (isLooped)
+		this->isLooped = 0xFFFF;
 
 	// Checks whether or not a format is looped to make drag-and-drop of non-looped video game tracks possible
 	// Most common audio formats are excluded for their sake of simple drag-and-drop (the -n flag still works)
