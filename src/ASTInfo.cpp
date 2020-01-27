@@ -73,6 +73,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 
 	if (isForced || (tmp.compare(".wav") != 0 && tmp.compare(".wave") != 0)) {
 		int ret1 = 0;
+		FILE* tmpFile;
 		if (this->forceConvType == -1) {
 			int ret2 = 0;
 			tmpFile = this->convToWAV(this->filename, &ret1, 0); // Attempts to convert file to WAV using vgmstream (0)
