@@ -100,7 +100,7 @@ public:
 			fftw_execute(reverse);
 
 			k = 0;
-			size_t j = i;
+			size_t j = numChannels - i - 1;
 			if (in.size() > 8 * numChannels) {
 				for (; j < 8 * numChannels; j += numChannels)
 				{
