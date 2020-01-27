@@ -67,7 +67,6 @@ public:
 
 		uint32_t length = this->blockSize; // Stores size of audio chunk in block
 		uint32_t paddedLength = bswap_32(length); // Stores current block size along with padding (Big Endian)
-		const uint16_t zeroPad = 0; // Contains the hex of 0x0000 used for padding
 		unsigned short offset = this->numChannels; // Stores an offset used in for loops to compensate with variable channels
 
 		uint32_t diff = 32 - (this->blockSize % 32);

@@ -34,7 +34,7 @@ public:
 			return 0;
 		}
 
-		for (int i = 1; i < transforms.size(); i++)
+		for (size_t i = 1; i < transforms.size(); i++)
 		{
 			if ((i % 2) == 1)
 			{
@@ -129,7 +129,7 @@ public:
 	int transform_data(const std::vector<int16_t>& in, std::vector<int16_t>& out, unsigned short numChannels) override
 	{
 		int32_t divisor = 64;
-		for (int i = 0; i < in.size(); i++)
+		for (size_t i = 0; i < in.size(); i++)
 		{
 			sum += in[i];
 			sum = clamp_audio_sum(sum, divisor);
@@ -172,13 +172,13 @@ public:
 		for (transformation_interface* t : transforms)
 		{
 			t->transform_data(in, out, numChannels);
-			for (int i = 0; i < out.size(); i++)
+			for (size_t i = 0; i < out.size(); i++)
 			{
 				buffer[i] += out[i];
 			}
 		}
 
-		for (int i = 0; i < buffer.size(); i++)
+		for (size_t i = 0; i < buffer.size(); i++)
 		{
 			out[i] = buffer[i] / transforms.size();
 		}
