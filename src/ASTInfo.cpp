@@ -485,6 +485,9 @@ int ASTInfo::writeAST(FILE* sourceWAV)
 		this->loopStart = 0;
 	}
 
+	if (this->numBlocks == 1)
+		this->blockSize = this->excBlkSz;
+
 	uint64_t startTime = (uint64_t)((long double)this->loopStart / (long double)this->customSampleRate * 1000000.0 + 0.5);
 	uint64_t endTime = (uint64_t)((long double)this->numSamples / (long double)this->customSampleRate * 1000000.0 + 0.5);
 
@@ -594,7 +597,6 @@ void ASTInfo::printHeader(FILE* outputAST) {
 	// Prints size of first block at 0x20
 	if (this->numBlocks == 1) {
 		fourByteInt = bswap_32(this->excBlkSz + padding);
-		this->blockSize = this->excBlkSz;
 	}
 	else {
 		fourByteInt = bswap_32(this->blockSize);

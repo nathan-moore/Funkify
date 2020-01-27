@@ -100,7 +100,7 @@ public:
 
 			// Adds padding to paddedLength during the last block
 			if (x == this->numBlocks - 1) {
-				// memset(block.data(), 0, this->blockSize * this->numChannels); // Clears old audio data stored in block array (possibly unnecessary)
+				memset(block.data(), 0, this->blockSize * this->numChannels); // Clears old audio data stored in block array (possibly unnecessary)
 				paddedLength = (this->excBlkSz + this->padding);
 				length = (this->excBlkSz) * this->numChannels;
 				paddedLength = bswap_32(paddedLength);
@@ -111,7 +111,7 @@ public:
 
 			if (x == numBlocks - 1)
 			{
-				size_t pLength = (length + (this->padding * 2)) / sizeof(uint16_t);
+				size_t pLength = (length + (this->padding * this->numChannels)) / sizeof(uint16_t);
 				block.resize(pLength);
 				printBlock.resize(pLength);
 			}
