@@ -44,7 +44,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 	}
 
 	// Checks for input of more than one input file (via *)
-	if (this->filename.find("*") != -1) {
+	if (this->filename.find("*") != std::string::npos) {
 		printf("ERROR: Program is only capable of opening a single input file at a time. Please enter an exact file name (avoid using '*').\n\n%s", help.c_str());
 		return 1;
 	}
@@ -73,7 +73,6 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 
 	if (isForced || (tmp.compare(".wav") != 0 && tmp.compare(".wave") != 0)) {
 		int ret1 = 0;
-		FILE* tmpFile;
 		if (this->forceConvType == -1) {
 			int ret2 = 0;
 			tmpFile = this->convToWAV(this->filename, &ret1, 0); // Attempts to convert file to WAV using vgmstream (0)

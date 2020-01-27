@@ -16,6 +16,8 @@ private:
 	size_t out_length;
 	fftw_plan reverse;
 
+	const std::string Wisdom = "FFTCache.inf";
+
 	void freeCurrentFields()
 	{
 		fftw_destroy_plan(plan);
@@ -58,6 +60,12 @@ public:
 
 		out_length = in_length / 2 + 1;
 		fft_out = fftw_alloc_complex(out_length);
+
+		bool haveWisdom = std::filesystem::exists(Wisdom);
+		if (haveWisdom)
+		{
+			fftw_import_wisdom_from_filename(Wisdom.c_str());
+		}
 
 		plan = fftw_plan_dft_r2c_1d(in_length, fft_in, fft_out, FFTW_MEASURE);
 		reverse = fftw_plan_dft_c2r_1d(in_length, fft_out, fft_in, FFTW_MEASURE);
@@ -138,6 +146,9 @@ public:
 		if (fft_in != nullptr)
 		{
 			freeCurrentFields();
+
+			fftw_export_wisdom_to_filename(Wisdom.c_str());
+
 			fftw_cleanup();
 		}
 	}
