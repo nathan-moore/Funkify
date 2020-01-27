@@ -57,7 +57,7 @@ public:
 	int assignValue(char*, char*); // Parses through user arguments and overrides default settings
 	int writeAST(FILE*); // Entry point for writing the AST file
 	void printHeader(FILE*); // Writes AST header to output file (and swaps endianness)
-	//FILE* convToWAV(std::string, int*, int); // Converts any format supported by vgmstream / vgmstream to WAV
+	FILE* convToWAV(std::string, int*, int); // Converts any format supported by vgmstream / vgmstream to WAV
 	void setPoints(); // Sets loop points for AST file (if any) from FFmpeg / vgmstream output
 
 	template<class T>

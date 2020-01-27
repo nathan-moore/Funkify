@@ -1,8 +1,11 @@
 #include <algorithm>
 #include <filesystem>
+#include <io.h>
 #include <cstring>
 #include <cctype>
 #include <filesystem>
+#include <windows.h>
+#include <fcntl.h>
 #include "FFTs.hpp"
 
 #include "swaps.h"
@@ -73,12 +76,12 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 		FILE* tmpFile;
 		if (this->forceConvType == -1) {
 			int ret2 = 0;
-			//tmpFile = this->convToWAV(this->filename, &ret1, 0); // Attempts to convert file to WAV using vgmstream (0)
-			//if (ret1 != 0) {
-			//	if (ret1 > 0)
-			//		printf("Format either unsupported by vgmstream or vgmstream cannot be located. Retrying conversion with FFmpeg:\n");
-			//	tmpFile = this->convToWAV(this->filename, &ret2, 1); // Attempts to convert file to WAV using FFmpeg (1)
-			//}
+			tmpFile = this->convToWAV(this->filename, &ret1, 0); // Attempts to convert file to WAV using vgmstream (0)
+			if (ret1 != 0) {
+				if (ret1 > 0)
+					printf("Format either unsupported by vgmstream or vgmstream cannot be located. Retrying conversion with FFmpeg:\n");
+				tmpFile = this->convToWAV(this->filename, &ret2, 1); // Attempts to convert file to WAV using FFmpeg (1)
+			}
 
 			fclose(sourceWAV);
 			if (ret1 != 0 && ret2 != 0) {
@@ -98,7 +101,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 			}
 		}
 		else {
-			//tmpFile = this->convToWAV(this->filename, &ret1, this->forceConvType); // Attempts to convert file to WAV using forced type
+			tmpFile = this->convToWAV(this->filename, &ret1, this->forceConvType); // Attempts to convert file to WAV using forced type
 			fclose(sourceWAV);
 			if (ret1 != 0) {
 				if (ret1 > 0) {
@@ -116,7 +119,7 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 				return 1;
 			}
 		}
-		//sourceWAV = tmpFile;
+		sourceWAV = tmpFile;
 	}
 
 	if (!sourceWAV) {
@@ -614,169 +617,164 @@ void ASTInfo::printHeader(FILE* outputAST) {
 
 	return;
 }
-//
-//// Writes all audio data to AST file (Big Endian)
-//void ASTInfo::printAudio(FILE* sourceWAV, FILE* outputAST) {
-//
-//}
-//
+
 // Converts any format supported by vgmstream / FFmpeg to WAV
-//FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
-//	string args;
-//	string origFilename = filename;
-//	if (cnvType == 0) {
-//		args = "test.exe -o \"";
-//	}
-//	else {
-//		args = "ffmpeg.exe -i \"";
-//		args += origFilename + "\" \"";
-//	}
-//
-//
-//	// Creates temporary file and checks that it isn't overwriting another existing file
-//	srand((unsigned int)time(NULL));
-//	while (true) {
-//		string tmp = "";
-//		for (int i = 0; i < 16; ++i) {
-//			int rchar = (rand() % 16) + 48;
-//			if (rchar > 57)
-//				rchar += 7;
-//			tmp += (char)rchar;
-//		}
-//		tmp += ".wav";
-//		FILE* exist = fopen(tmp.c_str(), "rb");
-//		if (!exist) {
-//			filename = tmp;
-//			break;
-//		}
-//		fclose(exist);
-//	}
-//
-//	// Piping needed to obtain vgmstream / FFmpeg output
-//	_dup2(1, 3);
-//	int pin = _dup(0);
-//	int pout;
-//	if (cnvType == 0)
-//		pout = _dup(1);
-//	else
-//		pout = _dup(2);
-//	int outPipe[2];
-//	_pipe(outPipe, 16777216, O_TEXT);
-//	if (cnvType == 0)
-//		_dup2(outPipe[1], 1);
-//	else
-//		_dup2(outPipe[1], 2);
-//
-//	args += filename + "\"";
-//
-//	if (cnvType == 0)
-//		args += " -l 1 \"" + origFilename + "\"";
-//
-//	TCHAR sysdir[MAX_PATH];
-//	GetWindowsDirectory(sysdir, MAX_PATH);
-//	string args2 = "vgmstream\\" + args;
-//	string args3 = "libraries\\" + args;
-//	string args4 = (string)sysdir + "\\SysNative\\" + args;
-//	string args5 = (string)sysdir + "\\vgmstream\\" + args;
-//
-//	STARTUPINFO sinfo = { sizeof(STARTUPINFO) };
-//	PROCESS_INFORMATION pinfo;
-//
-//	// Calls vgmstream / ffmpeg.exe
-//	int status;
-//	if (cnvType == 0 && CreateProcess(NULL, (LPSTR)args2.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-//		status = 1;
-//	}
-//
-//	else if (CreateProcess(NULL, (LPSTR)args3.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-//		status = 2;
-//	}
-//	else if (CreateProcess(NULL, (LPSTR)args4.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-//		status = 3;
-//	}
-//	else if (CreateProcess(NULL, (LPSTR)args5.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-//		status = 4;
-//	}
-//	else if (CreateProcess(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo))
-//	{
-//		status = 0;
-//	}
-//	else {
-//		_dup2(pin, 0);
-//		_close(pin);
-//		if (cnvType == 0)
-//			_dup2(pout, 1);
-//		else
-//			_dup2(pout, 2);
-//		_close(pout);
-//		_close(outPipe[0]);
-//		_close(outPipe[1]);
-//		status = -1;
-//		*ret = -1;
-//		return NULL;
-//	}
-//	if (!this->attempted) {
-//		char* str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with vgmstream's test.exe:\n";
-//		if (cnvType == 1)
-//			str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with ffmpeg.exe:\n";
-//		_write(3, str1, strlen(str1));
-//	}
-//	this->attempted = true;
-//	char* str2 = "Converting to WAV...";
-//	_write(3, str2, strlen(str2));
-//	WaitForSingleObject(pinfo.hProcess, INFINITE); // Waits for conversion to finish
-//	_dup2(pin, 0);
-//	_close(pin);
-//	if (cnvType == 0)
-//		_dup2(pout, 1);
-//	else
-//		_dup2(pout, 2);
-//	_close(pout);
-//	_close(outPipe[1]);
-//	DWORD exCode;
-//	GetExitCodeProcess(pinfo.hProcess, &exCode);
-//	CloseHandle(pinfo.hProcess);
-//	CloseHandle(pinfo.hThread);
-//	*ret = (int)exCode;
-//
-//	char* str3 = "...FAILED!\n";
-//	if (*ret != 0) {
-//		_write(3, str3, strlen(str3));
-//		return NULL;
-//	}
-//
-//	// Checks that the new file exists
-//	this->isWAV = false;
-//	this->tmpFilename = filename;
-//	FILE* sourceWAV = fopen(this->tmpFilename.c_str(), "rb");
-//	if (!sourceWAV) {
-//		_write(3, str3, strlen(str3));
-//		if (cnvType == 0)
-//			str3 = "ERROR: vgmstream failed to write file somehow. This error should never pop up.\n";
-//		else
-//			str3 = "ERROR: ffmpeg.exe failed to write file somehow. This error should never pop up.\n";
-//		_write(3, str3, strlen(str3));
-//		*ret = -3;
-//		return NULL;
-//	}
-//	char* str4 = "...DONE! Proceeding with AST conversion:\n";
-//	_write(3, str4, strlen(str4));
-//
-//	// Reads and stores output from ffmpeg.exe / vgmstream
-//	char tmpResult[4096];
-//	int sz;
-//	do {
-//		sz = _read(outPipe[0], &tmpResult, 4096);
-//		if (sz != 4096)
-//			tmpResult[sz] = '\0';
-//		this->extOut += tmpResult;
-//	} while (sz == 4096);
-//	_close(outPipe[0]);
-//
-//	//_write(3, this->extOut.c_str(), strlen(this->extOut.c_str()));
-//	//_write(3, "\n", 1);
-//	return sourceWAV;
-//}
+FILE* ASTInfo::convToWAV(string filename, int* ret, int cnvType) {
+	string args;
+	string origFilename = filename;
+	if (cnvType == 0) {
+		args = "test.exe -o \"";
+	}
+	else {
+		args = "ffmpeg.exe -i \"";
+		args += origFilename + "\" \"";
+	}
+
+
+	// Creates temporary file and checks that it isn't overwriting another existing file
+	srand((unsigned int)time(NULL));
+	while (true) {
+		string tmp = "";
+		for (int i = 0; i < 16; ++i) {
+			int rchar = (rand() % 16) + 48;
+			if (rchar > 57)
+				rchar += 7;
+			tmp += (char)rchar;
+		}
+		tmp += ".wav";
+		FILE* exist = fopen(tmp.c_str(), "rb");
+		if (!exist) {
+			filename = tmp;
+			break;
+		}
+		fclose(exist);
+	}
+
+	// Piping needed to obtain vgmstream / FFmpeg output
+	dup2(1, 3);
+	int pin = _dup(0);
+	int pout;
+	if (cnvType == 0)
+		pout = _dup(1);
+	else
+		pout = _dup(2);
+	int outPipe[2];
+	_pipe(outPipe, 16777216, O_TEXT);
+	if (cnvType == 0)
+		dup2(outPipe[1], 1);
+	else
+		dup2(outPipe[1], 2);
+
+	args += filename + "\"";
+
+	if (cnvType == 0)
+		args += " -l 1 \"" + origFilename + "\"";
+
+	TCHAR sysdir[MAX_PATH];
+	GetWindowsDirectory(sysdir, MAX_PATH);
+	string args2 = "vgmstream\\" + args;
+	string args3 = "libraries\\" + args;
+	string args4 = (string)sysdir + "\\SysNative\\" + args;
+	string args5 = (string)sysdir + "\\vgmstream\\" + args;
+
+	STARTUPINFO sinfo = { sizeof(STARTUPINFO) };
+	PROCESS_INFORMATION pinfo;
+
+	// Calls vgmstream / ffmpeg.exe
+	int status;
+	if (cnvType == 0 && CreateProcess(NULL, (LPSTR)args2.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
+		status = 1;
+	}
+
+	else if (CreateProcess(NULL, (LPSTR)args3.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
+		status = 2;
+	}
+	else if (CreateProcess(NULL, (LPSTR)args4.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
+		status = 3;
+	}
+	else if (CreateProcess(NULL, (LPSTR)args5.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
+		status = 4;
+	}
+	else if (CreateProcess(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo))
+	{
+		status = 0;
+	}
+	else {
+		dup2(pin, 0);
+		close(pin);
+		if (cnvType == 0)
+			dup2(pout, 1);
+		else
+			dup2(pout, 2);
+		close(pout);
+		close(outPipe[0]);
+		close(outPipe[1]);
+		status = -1;
+		*ret = -1;
+		return NULL;
+	}
+	if (!this->attempted) {
+		char* str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with vgmstream's test.exe:\n";
+		if (cnvType == 1)
+			str1 = "File opened successfully!\nAttempting to convert host file to temporary WAV file with ffmpeg.exe:\n";
+		_write(3, str1, strlen(str1));
+	}
+	this->attempted = true;
+	char* str2 = "Converting to WAV...";
+	write(3, str2, strlen(str2));
+	WaitForSingleObject(pinfo.hProcess, INFINITE); // Waits for conversion to finish
+	dup2(pin, 0);
+	close(pin);
+	if (cnvType == 0)
+		dup2(pout, 1);
+	else
+		dup2(pout, 2);
+	close(pout);
+	close(outPipe[1]);
+	DWORD exCode;
+	GetExitCodeProcess(pinfo.hProcess, &exCode);
+	CloseHandle(pinfo.hProcess);
+	CloseHandle(pinfo.hThread);
+	*ret = (int)exCode;
+
+	char* str3 = "...FAILED!\n";
+	if (*ret != 0) {
+		_write(3, str3, strlen(str3));
+		return NULL;
+	}
+
+	// Checks that the new file exists
+	this->isWAV = false;
+	this->tmpFilename = filename;
+	FILE* sourceWAV = fopen(this->tmpFilename.c_str(), "rb");
+	if (!sourceWAV) {
+		write(3, str3, strlen(str3));
+		if (cnvType == 0)
+			str3 = "ERROR: vgmstream failed to write file somehow. This error should never pop up.\n";
+		else
+			str3 = "ERROR: ffmpeg.exe failed to write file somehow. This error should never pop up.\n";
+		write(3, str3, strlen(str3));
+		*ret = -3;
+		return NULL;
+	}
+	char* str4 = "...DONE! Proceeding with AST conversion:\n";
+	write(3, str4, strlen(str4));
+
+	// Reads and stores output from ffmpeg.exe / vgmstream
+	char tmpResult[4096];
+	int sz;
+	do {
+		sz = _read(outPipe[0], &tmpResult, 4096);
+		if (sz != 4096)
+			tmpResult[sz] = '\0';
+		this->extOut += tmpResult;
+	} while (sz == 4096);
+	close(outPipe[0]);
+
+	//_write(3, this->extOut.c_str(), strlen(this->extOut.c_str()));
+	//_write(3, "\n", 1);
+	return sourceWAV;
+}
 
 // Sets loop points for AST file (if any) from FFmpeg / vgmstream output
 void ASTInfo::setPoints() {
@@ -838,14 +836,14 @@ void ASTInfo::setPoints() {
 			this->wavSize = this->numSamples * 2 * this->numChannels;
 		}
 	}
-	this->isLooped = 0xFFFF;
+	this->isLooped = 0x0000;
 
 	// Checks whether or not a format is looped to make drag-and-drop of non-looped video game tracks possible
 	// Most common audio formats are excluded for their sake of simple drag-and-drop (the -n flag still works)
-	string tmp = this->extension;
+	/*string tmp = this->extension;
 	if (!isLooped && (tmp.compare(".wav") && tmp.compare(".flac") && tmp.compare(".mp3") && tmp.compare(".mp4") && tmp.compare(".aac") && tmp.compare(".aiff")
 		&& tmp.compare(".m4a") && tmp.compare(".ogg") && tmp.compare(".opus") && tmp.compare(".raw") && tmp.compare(".wma") && tmp.compare(".avi"))) {
 
 		this->isLooped = 0x0000;
-	}
+	}*/
 }
