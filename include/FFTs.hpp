@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include "fftw3.h"
+#include <Windows.h>
 
 class FFT final : public transformation_interface
 {
@@ -16,7 +17,7 @@ private:
 	size_t out_length;
 	fftw_plan reverse;
 
-	const std::string Wisdom = "FFTCache.inf";
+	std::string Wisdom;
 
 	void freeCurrentFields()
 	{
@@ -60,6 +61,11 @@ public:
 
 		out_length = in_length / 2 + 1;
 		fft_out = fftw_alloc_complex(out_length);
+
+		char path[8192];
+		GetModuleFileName(NULL, path, 8192);
+		std::string strPath = path;
+		Wisdom = strPath.substr(0, strPath.find_last_of("/\\")+1) + "FFTCache.inf";
 
 		bool haveWisdom = std::filesystem::exists(Wisdom);
 		if (haveWisdom)

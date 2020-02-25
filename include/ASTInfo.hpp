@@ -42,11 +42,11 @@ class ASTInfo {
 
 	bool attempted = false; // Helps keep vgmstream / FFmpeg output text clean
 
-	bool isInv = false; // Inversion of original audio?
-	bool isFFT = false; // FFT?
-	bool isDer = false; // Derivative?
-	bool isInt = false; // Integral?
-	bool isTriLin = false; // Triangle-Linear?
+	bool isInv = false; // Inversion of original audio
+	bool isFFT = false; // FFT
+	bool isDer = false; // Derivative
+	bool isInt = false; // Integral
+	bool isTriLin = false; // Triangle-Linear
 
 public:
 	bool getIsWAV() { return isWAV; } // Returns isWAV
