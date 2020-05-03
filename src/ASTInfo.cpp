@@ -191,11 +191,13 @@ int ASTInfo::grabInfo(int argc, char** argv) {
 int ASTInfo::assignValue(char* c1, char* c2) {
 
 	unsigned int tmp;
-	int slash, colon;
+	int slash, colon, index;
+	double pitchdiff = 0.0;
 	uint64_t time;
 	long double rounded;
 	uint64_t samples;
 	string c2str;
+	const double a4 = 440.0;
 
 	char value = c1[1];
 	switch (value) {
@@ -303,6 +305,98 @@ int ASTInfo::assignValue(char* c1, char* c2) {
 		break;
 	case 'w': // Sets triangle-inversion conversion to true
 		this->isTriLin = true;
+		break;
+	case 'X': // Sets FFT conversion to true and sets axis pitch for FFT
+		this->isFFT = true;
+		if (c2[0] == '-') {
+			printf("ERROR: Cannot enter negative FFT axis pitch!\n");
+			return 1;
+		}
+		if ((c2[0] >= 'A' && c2[0] <= 'G') || (c2[0] >= 'a' && c2[0] <= 'g')) {
+			tmp = strlen(c2);
+			c2str = c2;
+			index = 1;
+			colon = 0;
+			if (tmp <= index) {
+				printf("ERROR: No pitch octave specified!\nPlease enter a value such as A4, C#7, Bhb2, or something alike.\n");
+				return 1;
+			}
+			if (c2[index] == 'h' || c2[index] == 'H')
+				index++;
+			if (tmp <= index) {
+				printf("ERROR: No pitch octave specified!\nPlease enter a value such as A4, C#7, Bhb2, or something alike.\n");
+				return 1;
+			}
+			if (c2[index] == 'b' || c2[index] == 'B') {
+				if (index == 2)
+					pitchdiff -= 0.5;
+				else
+					pitchdiff -= 1.0;
+				index++;
+			}
+			else if (c2[index] == '#') {
+				if (index == 2)
+					pitchdiff += 0.5;
+				else
+					pitchdiff += 1.0;
+				index++;
+			}
+			else if (index == 2) {
+				printf("ERROR: Invalid axis pitch value specified!\nPlease enter a value such as A4, C#7, Bhb2, or something alike.\n");
+				return 1;
+			}
+			if (tmp > index && c2[index] == '-') {
+				colon = 1;
+				index++;
+			}
+			if (tmp <= index || c2[index] < '0' || c2[index] > '9') {
+				printf("ERROR: No valid pitch octave specified!\nPlease enter a value such as Ab4, C-1, Bhb7, or something alike.\n");
+				return 1;
+			}
+			index = (atoi(c2str.substr(index).c_str()) - 4) * 12;
+			if (colon == 1) {
+				index = -96 - index;
+			}
+			switch (c2[0]) {
+			case 'A': case 'a':
+				break;
+			case 'B': case 'b':
+				index += 2;
+				break;
+			case 'C': case 'c':
+				index -= 9;
+				break;
+			case 'D': case 'd':
+				index -= 7;
+				break;
+			case 'E': case 'e':
+				index -= 5;
+				break;
+			case 'F': case 'f':
+				index -= 4;
+				break;
+			case 'G': case 'g':
+				index -= 2;
+				break;
+			default:
+				printf("ERROR: Invalid argument for FFT axis pitch!\n");
+				return 1;
+			}
+			
+			pitchdiff += (double) index;
+			this->axisPitch = pow(2.0, pitchdiff / 12.0) * a4;
+		}
+		else if (c2[0] >= '0' && c2[0] <= '9') {
+			this->axisPitch = atof(c2);
+			if (this->axisPitch <= 0.0) {
+				printf("ERROR: FFT axis pitch cannot be 0!\n");
+				return 1;
+			}
+		}
+		else {
+			printf("ERROR: Invalid argument for FFT axis pitch!\n");
+			return 1;
+		}
 		break;
 	case 'x': // Sets FFT conversion to true
 		this->isFFT = true;

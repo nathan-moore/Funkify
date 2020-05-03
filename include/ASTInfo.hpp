@@ -34,6 +34,7 @@ class ASTInfo {
 	unsigned int astSize; // Stores total file size of AST (minus 64)
 	unsigned int wavSize; // Stores size of audio found in source WAV
 	unsigned int outCodec = 0x0000; //  Stores funk codec information
+	double axisPitch = 440.0; //  Stores pitch axis for FFT inversion
 
 	unsigned int blockSize = 0x00008000; // Stores block size used (default for AST is 10080 bytes)
 	unsigned int excBlkSz; // Stores the size of the last block being written to the AST file

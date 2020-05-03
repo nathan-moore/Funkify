@@ -57,7 +57,8 @@ void defineHelp(char* arg) {
 		"	-f [loop end in microseconds / total time] (default: length of source audio)\n"
 		"	-v                                         (enable phase inversion canceling, use with other encoding options)\n"
 		"	-w                                         (enable triangle-linear encoding, incompatible with phase inversion)\n"
-		"	-x                                         (enable FFT encoding)\n"
+		"	-X [axis pitch]                            (enable FFT inversion around specified axis)\n"
+		"	-x                                         (enable FFT inversion)\n"
 		"	-y                                         (enable derivative encoding)\n"
 		"	-z                                         (enable integral encoding)\n\n"
 		"USAGE EXAMPLES\n	";
